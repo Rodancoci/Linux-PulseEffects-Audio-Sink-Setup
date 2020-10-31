@@ -1,5 +1,12 @@
 #!/bin/bash
 
+module_file=/tmp/pulse_game_modules
+
+if [ -f $module_file ]; then
+	echo "Modules have already been loaded. To unload them run 'game-audio-teardown'"
+	exit 1
+fi
+
 # Get the index of the default source
 mic_index=$(pacmd list-sources | grep "\* index:" | grep -o "[0-9]*")
 
@@ -18,13 +25,13 @@ find_sink () {
 # Game Sink monitor				--> Stream Sink
 # Currently selected microphone	--> Stream Sink
 # The last two default to PulseEffects anyway and have to be manually moved later.
-pactl load-module module-null-sink sink_name=gamesink sink_properties="device.description='Game\ Sink'"
-pactl load-module module-null-sink sink_name=streamsink sink_properties="device.description='Stream\ Sink'"
-pactl load-module module-loopback source=gamesink.monitor sink=PulseEffects_apps latency_msec=1
+pactl load-module module-null-sink sink_name=gamesink sink_properties="device.description='Game\ Sink'" > $module_file
+pactl load-module module-null-sink sink_name=streamsink sink_properties="device.description='Stream\ Sink'" >> $module_file
+pactl load-module module-loopback source=gamesink.monitor sink=PulseEffects_apps latency_msec=1 >> $module_file
 module_1=$(pactl load-module module-loopback source=$mic_index sink=streamsink latency_msec=1)
 module_2=$(pactl load-module module-loopback source=gamesink.monitor sink=streamsink latency_msec=1)
-printf "$module_1\n"
-printf "$module_2\n"
+echo "$module_1" >> $module_file
+echo "$module_2" >> $module_file
 
 # Produces a string with the sink-input IDs and their respective module IDs
 id_search=$(pactl list sink-inputs | grep -e "Sink Input #" -e "Owner Module: " | tr -d "\t" | tr "\n" " ")

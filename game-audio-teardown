@@ -1,0 +1,13 @@
+#!/bin/bash
+module_file=/tmp/pulse_game_modules
+
+if [ ! -f $module_file ]; then
+	echo "No modules have been loaded. To load them run 'game-audio-setup'"
+	exit 1
+fi
+
+while read module_n; do
+	pactl unload-module $module_n
+done <$module_file
+
+rm $module_file
