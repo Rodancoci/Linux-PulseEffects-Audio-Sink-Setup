@@ -18,11 +18,15 @@ When starting a game or application its audio stream is captured by PulseEffects
 
 ### Streaming
 
-If using OBS you can add an audio source pointing to either **Game Sink** or **Stream Sink** depending on whether you want to stream your microphone or not. Another possibility is to add two separate audio sources; **Game Sink** and your microphone, if you want to be able to mute only your microphone but not the game audio mid-stream.
+If using OBS you can add an audio source pointing to either **Game Sink** or **Stream Sink** depending on whether you want to stream your microphone or not.  
+Another possibility is to add two separate audio sources; **Game Sink** and your microphone, if you want to be able to mute only your microphone but not the game audio mid-stream.
 
-If using Discord you should go to Voice & Video settings and set the input device to **Monitor of Stream Sink**.
-If it is not in the list of input devices, you will have to change the device from `pavucontrol` by going to the Recording tab and changing the recstream of **WEBRTC VoiceEngine** to **Monitor of Stream Sink**.
-You can also use **Monitor of Game Sink** but keep in mind that the latter doesn't capture your microphone and your friends in Discord won't be able to hear you speak, only the game's audio.
+If using Discord you should go to Voice & Video settings and set the input device to **Monitor of Stream Sink**.  
+If it is not in the list of input devices, you will have to join a Discord voice channel and then change the input device from `pavucontrol` by going to the Recording tab and changing the recstream of **WEBRTC VoiceEngine** to **Monitor of Stream Sink**.  
+You can also use **Monitor of Game Sink** but keep in mind that the latter doesn't capture your microphone and your friends in Discord won't be able to hear you speak, only the game's audio.  
+Other recommendations for Discord include:
+- Setting the input mode to voice activity and manually setting the voice activity threshold to its minimum value.
+- Disabling Echo Cancellation and Noise Reduction in the Voice Processing section of the Voice & Video settings.
 
 ## game-audio-teardown
 
