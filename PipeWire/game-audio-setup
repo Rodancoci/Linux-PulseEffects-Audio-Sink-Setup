@@ -1,0 +1,42 @@
+#!/bin/bash
+
+module_file=/tmp/pw_streaming_modules
+
+if [ -f $module_file ]; then
+	echo "Modules have already been loaded. To unload them run 'game-audio-teardown'"
+	exit 1
+fi
+
+mic_name=$(pw-record --list-targets | gawk 'match($0, /\*[\t\s]*description="(.*?)"/, a) {print(a[1])}')
+mic_port=$(pw-link -o "$mic_name" | grep -m1 monitor)
+echo $mic_port
+
+easyeffects_sink=$(pw-play --list-targets | grep -o 'EasyEffects Sink')
+
+if [ -z "$easyeffects_sink" ]; then
+	sink_name=$(pw-play --list-targets | gawk 'match($0, /\*[\t\s]*description="(.*?)"/, a) {print(a[1])}')
+else
+	sink_name=$easyeffects_sink
+fi
+
+# This creates a pipewire node with a specified name and returns the id of the node so it may be deleted when done streaming
+create_named_node () {
+	local dump=$(pw-cli create-node adapter "{factory.name=support.null-audio-sink node.name=$1 media.class=Audio/Sink object.linger=true audio.position=[FL FR]}")
+	local node_id=$(pw-cli ls Node | tr -d "\t\n" | grep -Po "id [[:alnum:]]+,[^,]*?$1\"" | gawk 'match($0, /id ([0-9]+),/, a) {print(a[1])}')
+	echo $node_id
+}
+
+# Create the Game and Stream nodes and the following links:
+# Game Sink monitor	--> EasyEffects Sink/Default Output Device
+# Game Sink monitor	--> Stream Sink
+# Default microphone	--> Stream Sink
+gamesink_id=$(create_named_node "gamesink")
+streamsink_id=$(create_named_node "streamsink")
+echo $gamesink_id > $module_file
+echo $streamsink_id >> $module_file
+
+pw-link "$mic_port" 'streamsink:playback_FL'
+pw-link "$mic_port" 'streamsink:playback_FR'
+pw-link 'gamesink:monitor_FL' 'streamsink:playback_FL'
+pw-link 'gamesink:monitor_FR' 'streamsink:playback_FR'
+
