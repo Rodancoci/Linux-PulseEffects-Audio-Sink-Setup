@@ -7,13 +7,13 @@ if [ -f $module_file ]; then
 	exit 1
 fi
 
-mic_name=$(pw-record --list-targets | gawk 'match($0, /\*[\t\s]*description="(.*?)"/, a) {print(a[1])}')
+mic_name=$(pw-record --list-targets | gawk 'match($0, /\*[ \t]*[[:digit:]]*: description="(.*?)"/, a) {print(a[1])}')
 mic_port=$(pw-link -o "$mic_name" | grep -m1 monitor)
 
 easyeffects_sink=$(pw-play --list-targets | grep -o 'EasyEffects Sink')
 
 if [ -z "$easyeffects_sink" ]; then
-	sink_name=$(pw-play --list-targets | gawk 'match($0, /\*[\t\s]*description="(.*?)"/, a) {print(a[1])}')
+	sink_name=$(pw-play --list-targets | gawk 'match($0, /\*[ \t]*[[:digit:]]*: description="(.*?)"/, a) {print(a[1])}')
 else
 	sink_name=$easyeffects_sink
 fi
