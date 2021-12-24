@@ -7,7 +7,7 @@ if [ ! -f $module_file ]; then
 fi
 
 while read module_n; do
-	pw-cli destroy $module_n
+	pw-cli destroy $module_n >> /dev/null
 done <$module_file
 
 rm $module_file
