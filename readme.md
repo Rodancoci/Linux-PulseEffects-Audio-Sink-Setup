@@ -1,6 +1,6 @@
 # README
 
-This is a script for people using PulseAudio along with PulseEffects (i.e. for speaker equalization) who wish to stream gameplay and sound using software like OBS or Discord.
+This repository contains scripts for people using PulseAudio along with PulseEffects (i.e. for speaker equalization) or PipeWire with EasyEffects who wish to stream gameplay and sound using software like OBS or Discord.
 
 ## game-audio-setup
 
