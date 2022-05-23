@@ -22,7 +22,8 @@ fi
 
 # This creates a pipewire node with a specified name and returns the id of the node so it may be deleted when done streaming
 create_named_node () {
-	local dump=$(pw-cli create-node adapter "{factory.name=support.null-audio-sink node.name=$1 media.class=Audio/Sink object.linger=true audio.position=[FL FR]}")
+	local dump=$(pw-cli create-node adapter "{factory.name=support.null-audio-sink node.name=$1 node.description=$2 media.class=Audio/Sink object.linger=true audio.position=[FL FR]}")
+#	local dump=$(pw-cli create-node adapter "{factory.name=api.alsa.pcm.source node.name=$1 node.description=$2 media.class=Audio/Sink object.linger=true audio.position=[FL FR]}")
 	local node_id=$(pw-cli ls Node | tr -d "\t\n" | grep -Po "id [[:alnum:]]+,[^,]*?$1\"" | gawk 'match($0, /id ([0-9]+),/, a) {print(a[1])}')
 	echo $node_id
 }
@@ -31,8 +32,8 @@ create_named_node () {
 # Game Sink monitor	--> EasyEffects Sink/Default Output Device
 # Game Sink monitor	--> Stream Sink
 # Default microphone	--> Stream Sink
-gamesink_id=$(create_named_node "gamesink")
-streamsink_id=$(create_named_node "streamsink")
+gamesink_id=$(create_named_node "gamesink" "GameSink")
+streamsink_id=$(create_named_node "streamsink" "StreamSink")
 echo $gamesink_id > $module_file
 echo $streamsink_id >> $module_file
 echo $sink_name
