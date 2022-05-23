@@ -7,15 +7,17 @@ if [ -f $module_file ]; then
 	exit 1
 fi
 
-mic_name=$(pw-record --list-targets | gawk 'match($0, /\*[ \t]*[[:digit:]]*: description="(.*?)"/, a) {print(a[1])}')
-mic_port=$(pw-link -o "$mic_name" | grep -m1 monitor)
+#mic_name=$(pw-record --list-targets | gawk 'match($0, /\*[ \t]*[[:digit:]]*: description="(.*?)"/, a) {print(a[1])}')
+mic_name=$(pactl get-default-source)
+mic_port=$(pw-link -o "$mic_name")
 
-easyeffects_sink=$(pw-play --list-targets | grep -o 'EasyEffects Sink')
+#easyeffects_sink=$(pw-record --play --list-targets | grep -o 'EasyEffects Sink')
+easyeffects_sink=$(pw-cli ls Node | tr -d "\t\n" | grep -Po "id [[:alnum:]]+,[^,]*?easyeffects_sink\"" | gawk 'match($0, /id ([0-9]+),/, a) {print(a[1])}')
 
 if [ -z "$easyeffects_sink" ]; then
-	sink_name=$(pw-play --list-targets | gawk 'match($0, /\*[ \t]*[[:digit:]]*: description="(.*?)"/, a) {print(a[1])}')
+	sink_name=$(pactl get-default-sink)
 else
-	sink_name=$easyeffects_sink
+	sink_name='easyeffects_sink'
 fi
 
 # This creates a pipewire node with a specified name and returns the id of the node so it may be deleted when done streaming
@@ -34,6 +36,7 @@ streamsink_id=$(create_named_node "streamsink")
 echo $gamesink_id > $module_file
 echo $streamsink_id >> $module_file
 echo $sink_name
+echo $mic_port
 
 pw-link "$mic_port" 'streamsink:playback_FL'
 pw-link "$mic_port" 'streamsink:playback_FR'
